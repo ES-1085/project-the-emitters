@@ -1,6 +1,6 @@
-Project title
+Visualizing global CO2 emmisions data over the course of recent history
 ================
-by Team name
+The Emitters
 
 ## Summary
 
