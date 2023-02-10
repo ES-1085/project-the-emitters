@@ -1,13 +1,9 @@
 # data
 
-Place data file(s) in this folder.
+This dataset is pulled from ourworldindata.org/co2-and-greenhouse-gas-emissions
+Dimensions: 46,523 observations and 74 variables
 
-Then, include codebooks (variables, and their descriptions) for your data file(s)
-using the following format.
+## owid-co2-data
 
-## name of data file
-
-- `variable1`: Description of variable 1
-- `variable2`: Description of variable 2
-- `variable3`: Description of variable 3
+Full codebook can be found in the data folder und owid-co2-codebook.csv
 - ...
