@@ -32,12 +32,33 @@ Maddison Project Database.
 ## 2. Data
 
 ``` r
-# Our_co2_dataset <- owid_co2_data %>% 
-  # select("country", "year", "population", "co2", "co2_per_capita")
-```
-
-``` r
+# Our_co2_dataset <- co2_data %>% 
+#    select("country", "year", "population", "co2", "co2_per_capita")
+# ```
+# ```{r}
 # glimpse(Our_co2_dataset)
 ```
 
 ## 3. Data analysis plan
+
+We will be visualizing the emissions rate in different countries on a
+world map with countries delineated and filled, representing the
+magnitude of emissions with a color spectrum that will change from 1950
+to 2021. Countries and conglomerations of countries will be analyzed;
+some examples are the Asian continent without China and India or high-
+and low-income countries as different cases. For our variables, we have
+chosen to visually represent the emissions of Carbon Dioxide(CO2),
+Methane (CH4), Nitrous Oxide (N2O), and CO2e; our dataset contains the
+total population by country per year, and we will be divided emissions
+into total and per capita emissions. Density stacked and ridgeline
+charts will be used to represent the variation of emission over time for
+different countries on a global and continental scale, showing the
+proportion of countries with the highest emissions in a designated area.
+The countries in our data set don’t have a variable with the information
+of which continent they are located, so we would need to add another
+dataset with this information to easily group them by continent. On the
+same note, our dataset doesn’t contain information if a country has
+decided to set a net-zero emissions goal or if it had proposed a
+reduction of total emissions, and visually represent whether the
+countries are on track to achieve their goal, or if their proposed goal
+are skewed.

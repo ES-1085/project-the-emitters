@@ -1,3 +1,19 @@
+```{r}
+co2_data %>%
+          group_by(country) %>%
+          filter(year > "1949") %>%
+     select( country)
+```
+
+```{r}
+co2_data %>%
+  mutate(example_countries <- "United Sates, China")
+```
+
+     ggplot(co2_data, aes(x= year, y=co2, color=country)) +
+     geom_line() +
+       xlim(1950, 2021)
+```
 
 
 
