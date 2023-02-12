@@ -32,12 +32,12 @@ Maddison Project Database.
 ## 2. Data
 
 ``` r
-# Our_co2_dataset <- owid_co2_data %>% 
-  # select("country", "year", "population", "co2", "co2_per_capita")
+#Our_co2_dataset <- owid_co2_data %>% 
+   #select("country", "year", "population", "co2", "co2_per_capita")
 ```
 
 ``` r
-# glimpse(Our_co2_dataset)
+#glimpse(Our_co2_dataset)
 ```
 
 ## 3. Data analysis plan
