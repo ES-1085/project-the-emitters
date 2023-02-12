@@ -1,14 +1,42 @@
 Project proposal
-================
-Team name
+The Emitters
 
 ``` r
 library(tidyverse)
 library(broom)
 ```
 
-## 1\. Introduction
+## 1. Introduction
 
-## 2\. Data
+We will be attempting to create a visual representation of different
+countries carbon emissions per capita over time. To do this we will
+create a map of the world coloured by each country. The different
+colours of each country will represent the different levels of CO2
+emissions per capita and we will animate the the visualization so that
+we can see the how the different emission levels change over time from
+1850 on wards.
 
-## 3\. Data analysis plan
+We will be using data from the owid-co2-data data set which is a massive
+archive of global carbon emissions data from many different sources, but
+we will only be looking at the following variables: country, year,
+population, co2, and co2 per capita.
+
+Data citations:
+
+owid-co2-data was created using pre-existing data from the following
+sources: BP, EIA (Energy Information Administration), Global Carbon
+Project, Our World In Data, and the University of Groningen GGDC’s
+Maddison Project Database.
+
+## 2. Data
+
+``` r
+# Our_co2_dataset <- owid_co2_data %>% 
+  # select("country", "year", "population", "co2", "co2_per_capita")
+```
+
+``` r
+# glimpse(Our_co2_dataset)
+```
+
+## 3. Data analysis plan
