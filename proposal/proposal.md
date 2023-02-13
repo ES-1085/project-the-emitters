@@ -1,5 +1,4 @@
 Project proposal
-================
 The Emitters
 
 ``` r
