@@ -24,16 +24,16 @@ BP, EIA (Energy Information Administration), Global Carbon Project, Our World In
 
 ## 2. Data
 
-```{r}
+```{r read-csv-data}
 owid_co2_data <- read_csv("../data/owid-co2-data.csv")
 ```
 
 
-```{r}
+```{r select-our-dataset}
 Our_co2_dataset <- owid_co2_data %>%
    select("country", "year", "population", "co2", "co2_per_capita")
 ```
-```{r}
+```{r glimpse-our-dataset}
 glimpse(Our_co2_dataset)
 ```
 

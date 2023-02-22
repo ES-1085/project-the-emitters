@@ -4,31 +4,31 @@ library(broom)
 library(readr)
 ```
 
-```{r}
+```{r read-in-csv}
 owid_co2_data <- read_csv("owid-co2-data.csv")
 ```
 
-```{r}
+```{r focus-on-post-1949}
 owid_co2_data %>%
           group_by(country) %>%
           filter(year > "1949") %>%
      select( country)
 ```
 
-```{r}
+```{r focus-on-us-and-china}
 owid_co2_data %>%
   mutate(example_countries <- "United Sates, China")
 ```
-```{r}
+```{r co2-line-plot}
      ggplot(owid_co2_data, aes(x= year, y=co2, color=country)) +
      geom_line() +
        xlim(1950, 2021)
 ```
-```{r}
+```{r create-our-dataset}
 Our_co2_dataset <- owid_co2_data %>%
    select("country", "year", "population", "co2", "co2_per_capita")
 ```
-```{r}
+```{r glimpse-our-dataset}
 glimpse(Our_co2_dataset)
 ```
 
@@ -42,7 +42,7 @@ Dimensions: 46,523 observations and 74 variables
 
 Full codebook can be found in the data folder under owid-co2-codebook.csv
 
-```{r}
+```{r glimpse-dataset}
 glimpse(owid_co2_data)
 ```
 
