@@ -9,12 +9,12 @@ library(broom)
 ## 1. Introduction
 
 We will be attempting to create a visual representation of different
-countries carbon emissions per capita over time. To do this we will
+countries’ carbon emissions per capita over time. To do this we will
 create a map of the world coloured by each country. The different
 colours of each country will represent the different levels of CO2
-emissions per capita and we will animate the the visualization so that
-we can see the how the different emission levels change over time from
-1850 on wards.
+emissions per capita and we will animate the visualization so that we
+can see how the different emission levels change over time from 1850 on
+wards.
 
 We will be using data from the owid-co2-data data set which is a massive
 archive of global carbon emissions data from many different sources, but
