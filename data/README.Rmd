@@ -12,15 +12,17 @@ owid_co2_data <- read_csv("owid-co2-data.csv")
 owid_co2_data %>%
           group_by(country) %>%
           filter(year > "1949") %>%
-     select( country)
+          summarize(country)
 ```
 
 ```{r focus-on-us-and-china}
 owid_co2_data %>%
-  mutate(example_countries <- "United Sates, China")
+  group_by(country) %>% 
+  filter(country == "United States" | country == "China")
+  
 ```
 ```{r co2-line-plot}
-     ggplot(owid_co2_data, aes(x= year, y=co2, color=country)) +
+     ggplot(owid_co2_data, aes(x= year, y=co2, color=country, show.legend = FALSE)) +
      geom_line() +
        xlim(1950, 2021)
 ```
