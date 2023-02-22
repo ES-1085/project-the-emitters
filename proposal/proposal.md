@@ -1,11 +1,6 @@
 Project proposal
 The Emitters
 
-``` r
-library(tidyverse)
-library(broom)
-```
-
 ## 1. Introduction
 
 We will be attempting to create a visual representation of different
@@ -28,17 +23,8 @@ sources: BP, EIA (Energy Information Administration), Global Carbon
 Project, Our World In Data, and the University of Groningen GGDC’s
 Maddison Project Database.
 
-## 2. Data
 
-``` r
-# Our_co2_dataset <- co2_data %>% 
-#    select("country", "year", "population", "co2", "co2_per_capita")
-# ```
-# ```{r}
-# glimpse(Our_co2_dataset)
-```
-
-## 3. Data analysis plan
+## 2. Data analysis plan
 
 We will be visualizing the emissions rate in different countries on a
 world map with countries delineated and filled, representing the

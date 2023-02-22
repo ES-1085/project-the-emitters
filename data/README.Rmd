@@ -1,3 +1,13 @@
+```{r load-packages, message = FALSE}
+library(tidyverse)
+library(broom)
+library(readr)
+```
+
+```{r}
+owid_co2_data <- read_csv("owid-co2-data.csv")
+```
+
 ```{r}
 owid_co2_data %>%
           group_by(country) %>%
@@ -13,6 +23,13 @@ owid_co2_data %>%
      ggplot(owid_co2_data, aes(x= year, y=co2, color=country)) +
      geom_line() +
        xlim(1950, 2021)
+```
+```{r}
+Our_co2_dataset <- owid_co2_data %>%
+   select("country", "year", "population", "co2", "co2_per_capita")
+```
+```{r}
+glimpse(Our_co2_dataset)
 ```
 
 
