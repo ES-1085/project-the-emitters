@@ -356,7 +356,8 @@ display: none;
 
 
 <pre class="r"><code>library(tidyverse)
-library(broom)</code></pre>
+library(broom)
+library(readr)</code></pre>
 <div id="introduction" class="section level2">
 <h2>1. Introduction</h2>
 <p>We will be attempting to create a visual representation of different
@@ -378,11 +379,25 @@ Maddison Project Database.</p>
 </div>
 <div id="data" class="section level2">
 <h2>2. Data</h2>
-<pre class="r"><code># Our_co2_dataset &lt;- co2_data %&gt;% 
-#    select(&quot;country&quot;, &quot;year&quot;, &quot;population&quot;, &quot;co2&quot;, &quot;co2_per_capita&quot;)
-# ```
-# ```{r}
-# glimpse(Our_co2_dataset)</code></pre>
+<pre class="r"><code>owid_co2_data &lt;- read_csv(&quot;../data/owid-co2-data.csv&quot;)</code></pre>
+<pre><code>## Rows: 46523 Columns: 74
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (2): country, iso_code
+## dbl (72): year, population, gdp, cement_co2, cement_co2_per_capita, co2, co2...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>Our_co2_dataset &lt;- owid_co2_data %&gt;%
+   select(&quot;country&quot;, &quot;year&quot;, &quot;population&quot;, &quot;co2&quot;, &quot;co2_per_capita&quot;)</code></pre>
+<pre class="r"><code>glimpse(Our_co2_dataset)</code></pre>
+<pre><code>## Rows: 46,523
+## Columns: 5
+## $ country        &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Afghanist…
+## $ year           &lt;dbl&gt; 1850, 1851, 1852, 1853, 1854, 1855, 1856, 1857, 1858, 1…
+## $ population     &lt;dbl&gt; 3752993, 3769828, 3787706, 3806634, 3825655, 3844769, 3…
+## $ co2            &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…
+## $ co2_per_capita &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,…</code></pre>
 </div>
 <div id="data-analysis-plan" class="section level2">
 <h2>3. Data analysis plan</h2>

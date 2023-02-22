@@ -7,6 +7,7 @@ output: html_document
 ```{r load-packages, message = FALSE}
 library(tidyverse)
 library(broom)
+library(readr)
 ```
 
 ## 1. Introduction
@@ -24,11 +25,16 @@ BP, EIA (Energy Information Administration), Global Carbon Project, Our World In
 ## 2. Data
 
 ```{r}
-# Our_co2_dataset <- owid_co2_data %>%
-#    select("country", "year", "population", "co2", "co2_per_capita")
+owid_co2_data <- read_csv("../data/owid-co2-data.csv")
+```
+
+
+```{r}
+Our_co2_dataset <- owid_co2_data %>%
+   select("country", "year", "population", "co2", "co2_per_capita")
 ```
 ```{r}
-# glimpse(Our_co2_dataset)
+glimpse(Our_co2_dataset)
 ```
 
 
