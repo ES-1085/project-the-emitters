@@ -1,0 +1,17 @@
+```{r load-packages, message = FALSE}
+library(tidyverse)
+library(broom)
+library(readr)
+```
+
+```{r read-csv-data}
+owid_co2_data <- read_csv("../data/owid-co2-data.csv")
+```
+
+```{r}
+owid_co2_data %>% 
+  filter(country == "United States") %>% 
+  ggplot(mapping = aes(x = year, y = co2_per_capita) +
+  geom_point())
+```
+
