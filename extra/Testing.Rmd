@@ -67,6 +67,7 @@ ggplot(aes(fill = co2_per_capita)) +
   #transition_states(year) +
   #ease_aes('linear')
 ```
+
 ```{r}
 my_map <- ggplot() +
   geom_sf(data = sub_data, aes(fill = co2_per_capita, group = year)) +
