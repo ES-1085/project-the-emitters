@@ -65,17 +65,40 @@ Only_Countries_CO2 <- CO2_continents_data %>%
 
 ```{r}
 Only_Countries_CO2 %>%
-  filter(year == 1990) %>%
+  filter(year == 1990,
+         iso_code != "ATA") %>%
   ggplot(aes(x = gdp,
         y = co2)) +
   geom_miss_point(alpha = 0.5) + 
   facet_wrap(~continent, ncol = 1) 
+  #labs(xlim = c(0, 10000000000000))
+  # scale_x_discrete(labels=c(0.0e+00 == 0, 2.5e+12 == "2.5 trillion", 5.0e+12 == "5 trillion", 7.5e+12 == "7.5 trillion"))
 ```
 
 
 ```{r}
-co2_data_decade <- co2_data %>%
+Only_Countries_CO2 %>%
   filter(year >= 1950,
-         iso_code != "ATA") 
+          year <= 2018,
+         iso_code != "ATA") %>%
+  ggplot(aes(x = gdp,
+        y = co2)) +
+  geom_miss_point(alpha = 0.5) + 
+  facet_wrap(~continent) +
+  labs(title = 'Year: {closest_state}') +
+  transition_states(states = year, transition_length = 0.2)
+```
+```{r}
+Only_Countries_CO2 %>%
+  filter(year >= 1950,
+          year <= 2018,
+         iso_code != "ATA") %>%
+  ggplot(aes(x = gdp,
+        y = co2)) +
+  xlim(0, 2000000000000)
+  geom_miss_point(alpha = 0.5) + 
+  facet_wrap(~continent) +
+  labs(title = 'Year: {closest_state}') +
+  transition_states(states = year, transition_length = 0.2)
 ```
 
