@@ -1,6 +1,14 @@
 ```{r}
+install.packages("gganimate")
+library(gganimate)
 library(tidyverse)
 library(dplyr)
+library(gifski)
+library(rnaturalearth)
+library(transformr)
+library(png)
+library(rnaturalearthdata)
+library(gganimate)
 ```
 
 ```{r}
@@ -18,10 +26,6 @@ Our_co2_dataset <- owid_co2_data %>%
 ```
 
 ```{r}
-library("rnaturalearth")
-library("rnaturalearthdata")
-library("gganimate")
-
 world <- ne_countries(scale = "medium", returnclass = "sf")
 class(world)
 
@@ -58,12 +62,20 @@ ggplot(aes(fill = co2_per_capita)) +
   #transition_reveal(time = year)
 ```
 ```{r}
-ggplot() +
-  geom_sf(data = merged_data, aes(fill = co2_per_capita)) +
+mini <- merged_data %>%
+  filter(year %in% c(2020, 2019, 2018, 2017, 2016))
+
+anim <- ggplot() +
+  geom_sf(data = mini, aes(fill = co2_per_capita, group = year)) +
   scale_fill_gradient(low = "blue", high = "red") +
   theme_void() +
-  transition_time(year) +
-  labs(title = "Year: {frame_time}")
+  transition_states(year) +
+  labs(title = "Year: {closest_state}")
+```
+
+```{r}
+animate(anim, renderer = gifski_renderer())
+anim_save("anim.gif", anim, path = NULL)
 ```
 
 ```{r}
@@ -81,3 +93,11 @@ my_anim_map <- my_map +
 
 ```{r}
 #anim_save("my_animation.gif", my_anim_map)
+```
+
+
+```{r}
+minismall <- CO2_complete %>%
+  filter(year %in% c(2020, 2019, 2018, 2017, 2016)) %>% 
+  write.csv("tiny.csv")
+```
