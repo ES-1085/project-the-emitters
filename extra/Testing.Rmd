@@ -3,12 +3,16 @@ install.packages("gganimate")
 library(gganimate)
 library(tidyverse)
 library(dplyr)
-library(gifski)
-library(rnaturalearth)
-library(transformr)
-library(png)
-library(rnaturalearthdata)
+library(ggplot2)
 library(gganimate)
+library(rmapshaper)
+library(transformr)
+library("rnaturalearth")
+library("rnaturalearthdata")
+library("gganimate")
+library(gifski)
+library(png) 
+
 ```
 
 ```{r}
@@ -46,7 +50,12 @@ CO2_complete <- left_join(all_countries, Our_co2_dataset, by = c("iso_code", "ye
 
 
 ```{r}
-merged_data <- full_join(world, CO2_complete, by = c("iso_code"))
+merged_data <- full_join(world, Our_co2_dataset, by = c("iso_code"))
+```
+
+```{r}
+sub_data <- merged_data %>% 
+  filter(year > 2015)
 ```
 
 
@@ -57,11 +66,13 @@ merged_data %>%
 ggplot(aes(fill = co2_per_capita)) +
     geom_sf() +
   scale_fill_gradient(low = "blue", high ="red") +
-  theme_void()
-  #transition_time(year)
-  #transition_reveal(time = year)
+  theme_void() 
+  #transition_states(year) +
+  #ease_aes('linear')
 ```
+
 ```{r}
+
 mini <- merged_data %>%
   filter(year %in% c(2020, 2019, 2018, 2017, 2016))
 
@@ -76,22 +87,38 @@ anim <- ggplot() +
 ```{r}
 animate(anim, renderer = gifski_renderer())
 anim_save("anim.gif", anim, path = NULL)
+
+my_map <- ggplot() +
+  geom_sf(data = sub_data, aes(fill = co2_per_capita, group = year)) +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_void() +
+  transition_time(year) +
+  ease_aes('linear') +
+  labs(title = "Year: {closest_state}")
+
 ```
 
 ```{r}
 my_map <- ggplot() +
-  geom_sf(data = merged_data, aes(fill = co2)) +
+  geom_sf(data = sub_data, aes(fill = co2)) +
   scale_fill_gradient(low = "blue", high = "red") +
   theme_void()
 ```
 
 ```{r}
 my_anim_map <- my_map +
-  transition_time(year) +
-  labs(title = "Year: {frame_time}")
+  transition_states(year) +
+  labs(title = "Year: {closest_state}")
 ```
 
 ```{r}
+animate(my_map, renderer = gifski_renderer())
+
+anim_save(filename = "my_map.gif", animation = my_map, path = NULL)
+```
+
+```{r}
+
 #anim_save("my_animation.gif", my_anim_map)
 ```
 
@@ -101,3 +128,6 @@ minismall <- CO2_complete %>%
   filter(year %in% c(2020, 2019, 2018, 2017, 2016)) %>% 
   write.csv("tiny.csv")
 ```
+anim_save("my_map.gif", animation = last_animation(), path = NULL)
+```
+
