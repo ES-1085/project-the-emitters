@@ -92,7 +92,7 @@ GDPxCO2_all <- Only_Countries_CO2 %>%
 ```{r}
 animate(GDPxCO2_all, renderer = gifski_renderer(), end_pause = 20 )
 
-anim_save(filename = "GDPxCO2_all.gif", animation = GHGsanim, path = NULL)
+anim_save(filename = "GDPxCO2_all.gif", animation = GDPxCO2_all, path = NULL)
 ```
 
 
