@@ -77,7 +77,7 @@ Only_Countries_CO2 %>%
 
 
 ```{r}
-Only_Countries_CO2 %>%
+GDPxCO2_all <- Only_Countries_CO2 %>%
   filter(year >= 1950,
           year <= 2018,
          iso_code != "ATA") %>%
@@ -88,17 +88,66 @@ Only_Countries_CO2 %>%
   labs(title = 'Year: {closest_state}') +
   transition_states(states = year, transition_length = 0.2)
 ```
+
+```{r}
+animate(GDPxCO2_all, renderer = gifski_renderer(), end_pause = 20 )
+
+anim_save(filename = "GDPxCO2_all.gif", animation = GHGsanim, path = NULL)
+```
+
+
 ```{r}
 Only_Countries_CO2 %>%
   filter(year >= 1950,
           year <= 2018,
-         iso_code != "ATA") %>%
+         iso_code != "ATA", 
+         iso_code != "CHN",
+         iso_code != "USA",
+         iso_code != "IND") %>%
   ggplot(aes(x = gdp,
         y = co2)) +
-  xlim(0, 2000000000000)
   geom_miss_point(alpha = 0.5) + 
   facet_wrap(~continent) +
   labs(title = 'Year: {closest_state}') +
   transition_states(states = year, transition_length = 0.2)
+```
+```{r, only-world-dataset}
+Only_world_ghg <- co2_data %>%
+  select(country, year, oil_co2, gas_co2, coal_co2, co2, population, gdp, methane, nitrous_oxide, total_ghg_excluding_lucf,) %>%
+  filter(year >= 1990,
+         country == "World")
+```
+
+```{r}
+World_GHGs <- Only_world_ghg %>%
+pivot_longer(c(oil_co2, gas_co2, coal_co2, methane, nitrous_oxide, co2 ), names_to = "GHG", values_to = "GHG_emissions")
+```
+
+
+```{r}
+World_GHGs %>%
+  filter(year == 1990) %>%
+  ggplot() +
+    geom_bar(aes(x= "", y = GHG_emissions, fill = GHG), stat="identity", width=1, color="white") +
+  coord_polar("y", start=0) +
+  scale_fill_viridis_d()  +
+  theme_test(  ) 
+```
+
+```{r}
+GHGsanim <- World_GHGs %>%
+  filter(year <= 2018) %>%
+  ggplot() +
+    geom_bar(aes(x= GHG, y = GHG_emissions, fill = GHG), stat="identity", width=1, color="white") +
+  scale_fill_viridis_d()  +
+  theme_test(  ) +
+  labs(title = 'Year: {closest_state}') +
+  transition_states(states = year, transition_length = 0.2)
+```
+
+```{r}
+animate(GHGsanim, renderer = gifski_renderer(), end_pause = 20 )
+
+anim_save(filename = "GHGsoftheWorld.gif", animation = GHGsanim, path = NULL)
 ```
 
