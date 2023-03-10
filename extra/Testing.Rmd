@@ -12,6 +12,7 @@ library("rnaturalearthdata")
 library("gganimate")
 library(gifski)
 library(png) 
+library(plotly)
 
 ```
 
@@ -128,6 +129,6 @@ minismall <- CO2_complete %>%
   filter(year %in% c(2020, 2019, 2018, 2017, 2016)) %>% 
   write.csv("tiny.csv")
 ```
-anim_save("my_map.gif", animation = last_animation(), path = NULL)
-```
+
+
 
