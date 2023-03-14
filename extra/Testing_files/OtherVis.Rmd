@@ -121,26 +121,27 @@ CO2_data %>%
   geom_point(alpha = 0.5)
 ```
 ```{r}
-timePlot <- CO2_data %>% 
+timePlot2 <- CO2_data %>% 
   ggplot(aes(x = year, y = co2, color = country)) +
-  #guides(color = FALSE) +
-  scale_fill_viridis_b() +
+  
+  guides(color = none) +
+  #scale_fill_viridis_b() +
   geom_path(alpha = 0.5) +
   geom_point(alpha = 0.5) +
   transition_reveal(along = year)
   #labs(title = "Year: {closest_state}")
 ```
 ```{r}
-animate(timePlot, renderer = gifski_renderer(), end_pause = 20)
+animate(timePlot2, renderer = gifski_renderer(), end_pause = 20)
 
-anim_save(filename = "timePlot.gif", animation = timePlot, path = NULL)
+anim_save(filename = "timePlotTest.gif", animation = timePlot2, path = NULL)
 ```
 
 ```{r}
 timePlotpop <- CO2_data %>% 
   ggplot(aes(x = year, y = population, color = country)) +
-  #guides(color = FALSE) +
-  scale_fill_viridis_b() +
+  guides(color = none) +
+  #scale_fill_viridis_b() +
   geom_path(alpha = 0.5) +
   geom_point(alpha = 0.5) +
   transition_reveal(along = year)
@@ -149,5 +150,19 @@ timePlotpop <- CO2_data %>%
 ```{r}
 animate(timePlotpop, renderer = gifski_renderer(), end_pause = 20)
 
-anim_save(filename = "timePlotpop.gif", animation = timePlotpop, path = NULL)
+anim_save(filename = "timePlotpopulation.gif", animation = timePlotpop, path = NULL)
 ```
+```{r}
+timeCo2 <- CO2_data %>% 
+  ggplot(aes(x = year, y = co2, color = country)) +
+  guides(color = none) +
+  geom_point(alpha = 0.5)
+  transition_reveal(along = year)
+```
+```{r}
+animate(timeCo2, renderer = gifski_renderer(), end_pause = 20)
+
+anim_save(filename = "timeCo2.gif", animation = timeCo2, path = NULL)
+```
+```
+
