@@ -122,8 +122,9 @@ gdpxco2growth_countries <- Only_Countries_CO2 %>%
 
 ```{r}
 animate(gdpxco2growth_countries, fps = 3,start_pause = 12, end_pause = 20, width = 750, height = 450)
-anim_save("nations.gif")
+anim_save("countries.gif")
 ```
+
 ```{r, 2018_growth}
 Only_Countries_CO2 %>%
   filter(year == 2018,
