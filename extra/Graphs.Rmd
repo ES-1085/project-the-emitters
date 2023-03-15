@@ -13,6 +13,7 @@ library(png)
 library(visdat)
 library(naniar)
 library("tidyr")
+library(av)
 ```
 
 ```{r}
@@ -24,10 +25,8 @@ CO2_data <- owid_co2_data
 
 ```{r}
 Our_co2_dataset <- owid_co2_data %>% 
-  select("country", "year", "population", "co2", "co2_per_capita", "iso_code", "gdp")
-```
-
-```{
+  select("country", "year", "population", "co2", "co2_per_capita", "iso_code", "gdp", "co2_per_capita", "co2_including_luc_growth_abs") %>%
+  mutate("GDP_per_capita" = gdp/population)
 ```
 
 
@@ -38,6 +37,7 @@ library("rnaturalearthdata")
 world <- ne_countries(scale = "medium", returnclass = "sf")
 class(world)
 ```
+
 ```{r}
 colnames(world)[10] ="iso_code"
 ```
@@ -51,68 +51,104 @@ world_continents <- world %>%
 CO2_continents_data <- Our_co2_dataset %>%
   full_join(world_continents)
 ```
+
 ```{r}
 CO2_continents_data %>%
   filter(is.na(continent) == TRUE) %>%
   distinct(country)
-```
-```{r}
+
 Only_Countries_CO2 <- CO2_continents_data %>%
   drop_na(continent)
-  
 ```
 
 
 ```{r}
 Only_Countries_CO2 %>%
-  filter(year == 1990,
+  filter(year == 2018,
          iso_code != "ATA") %>%
-  ggplot(aes(x = gdp,
-        y = co2)) +
+  ggplot(aes(x = GDP_per_capita,
+        y = co2_per_capita)) +
   geom_miss_point(alpha = 0.5) + 
-  facet_wrap(~continent, ncol = 1) 
-  #labs(xlim = c(0, 10000000000000))
-  # scale_x_discrete(labels=c(0.0e+00 == 0, 2.5e+12 == "2.5 trillion", 5.0e+12 == "5 trillion", 7.5e+12 == "7.5 trillion"))
+  facet_wrap(~continent, ncol = 1)  #+
+#scale_x_discrete(breaks = c(0.0e+00, 2.5e+12, 5.0e+12, 7.5e+12) , labels = c("0", "2.5 trillion", "5 trillion", "7.5 trillion"))
 ```
 
+ 
 
-```{r}
-GDPxCO2_all <- Only_Countries_CO2 %>%
-  filter(year >= 1950,
-          year <= 2018,
-         iso_code != "ATA") %>%
-  ggplot(aes(x = gdp,
-        y = co2)) +
-  geom_miss_point(alpha = 0.5) + 
-  facet_wrap(~continent) +
-  labs(title = 'Year: {closest_state}') +
-  transition_states(states = year, transition_length = 0.2)
-```
-
-```{r}
-animate(GDPxCO2_all, renderer = gifski_renderer(), end_pause = 20 )
-
-anim_save(filename = "GDPxCO2_all.gif", animation = GDPxCO2_all, path = NULL)
-```
-
-
-```{r}
+```{r, GDP_&_CO2_per_capita}
 Only_Countries_CO2 %>%
   filter(year >= 1950,
           year <= 2018,
          iso_code != "ATA", 
-         iso_code != "CHN",
-         iso_code != "USA",
-         iso_code != "IND") %>%
-  ggplot(aes(x = gdp,
-        y = co2)) +
+         continent != "Seven seas (open ocean)",
+         co2_per_capita <= 100,
+         country != "Sint Maarten (Dutch part)",
+         country != "Curacao",
+         country != "Kuwait") %>%
+  ggplot(aes(x = GDP_per_capita/1000, y = co2_per_capita)) +
   geom_miss_point(alpha = 0.5) + 
   facet_wrap(~continent) +
-  labs(title = 'Year: {closest_state}') +
-  transition_states(states = year, transition_length = 0.2)
+  labs(title = 'Year: {closest_state}', x = "GDP per capita in thousands USD", y= "CO2 emissions per capita") +
+  transition_states(states = year, transition_length = 0.2)  +
+  theme_test()
 ```
+
+```{r, global_growth}
+gdpxco2growth_countries <- Only_Countries_CO2 %>%
+  filter(year >= 1945,
+          year <= 2018,
+         iso_code != "ATA", 
+         continent != "Seven seas (open ocean)",
+         country != "China",
+         iso_code != "USA",
+         country != "India") %>%
+    ggplot(aes(x =gdp/1000000000000, y = co2_including_luc_growth_abs)) +
+  theme_minimal(base_size = 15, base_family = "") +
+  geom_point(aes(size = population, color = continent), alpha = 0.35) +
+  scale_size_area(guide = FALSE, max_size = 15) +
+  scale_x_continuous(labels=scales::dollar_format()) +
+  ylim(-450,450) +
+  # coord_flip() +
+  # xlim(0,100000) +
+  stat_smooth(formula = y ~ x, se = FALSE, linewidth = 0.35, color = "blue", linetype="dotdash") +
+  geom_hline(yintercept = 0, linewidth = 0.5, color = "black")+
+ scale_colour_brewer(palette = "Set1") +
+  theme(legend.position=c(0.8,0.4)) +
+  theme_test() +
+  labs(title = 'Year: {closest_state}', x = "GDP in trillion", y= "Annual production-based co2 emissions") +
+  transition_states(states = year, transition_length = 0.65, wrap = FALSE)
+
+```
+
+```{r}
+animate(gdpxco2growth_countries, fps = 3,start_pause = 12, end_pause = 20, width = 750, height = 450)
+anim_save("nations.gif")
+```
+```{r, 2018_growth}
+Only_Countries_CO2 %>%
+  filter(year == 2018,
+         iso_code != "ATA", 
+         continent != "Seven seas (open ocean)") %>%
+    ggplot(aes(x =gdp/1000000000000, y = co2_including_luc_growth_abs)) +
+  theme_minimal(base_size = 15, base_family = "") +
+  geom_point(aes(size = population, color = continent), alpha = 0.35) +
+  scale_size_area(guide = FALSE, max_size = 15) +
+  scale_x_continuous(labels=scales::dollar_format()) +
+  ylim(-450,450) +
+  # coord_flip() +
+  # xlim(0,100000) +
+  stat_smooth(formula = y ~ x, se = FALSE, linewidth = 0.35, color = "blue", linetype="dotdash") +
+  geom_hline(yintercept = 0, linewidth = 0.5, color = "black")+
+ scale_colour_brewer(palette = "Set1") +
+  theme(legend.position=c(0.8,0.4)) +
+  theme_test() +
+  labs(title = 'Year: 2018', x = "GDP in trillion", y= "Annual production-based co2 emissions") 
+```
+
+
+
 ```{r, only-world-dataset}
-Only_world_ghg <- co2_data %>%
+Only_world_ghg <- CO2_data %>%
   select(country, year, oil_co2, gas_co2, coal_co2, co2, population, gdp, methane, nitrous_oxide, total_ghg_excluding_lucf,) %>%
   filter(year >= 1990,
          country == "World")
@@ -124,30 +160,41 @@ pivot_longer(c(oil_co2, gas_co2, coal_co2, methane, nitrous_oxide, co2 ), names_
 ```
 
 
-```{r}
-World_GHGs %>%
-  filter(year == 1990) %>%
-  ggplot() +
-    geom_bar(aes(x= "", y = GHG_emissions, fill = GHG), stat="identity", width=1, color="white") +
-  coord_polar("y", start=0) +
-  scale_fill_viridis_d()  +
-  theme_test(  ) 
-```
 
-```{r}
+```{r, animation_of_ghgs}
 GHGsanim <- World_GHGs %>%
-  filter(year <= 2018) %>%
+  filter(year <= 2019) %>%
   ggplot() +
-    geom_bar(aes(x= GHG, y = GHG_emissions, fill = GHG), stat="identity", width=1, color="white") +
+       geom_bar(aes(x = fct_relevel(GHG, c("methane", "nitrous_oxide", "co2" )), y = GHG_emissions, fill = GHG), stat="identity", width=0.75, color="white", position ="dodge") +
   scale_fill_viridis_d()  +
-  theme_test(  ) +
-  labs(title = 'Year: {closest_state}') +
-  transition_states(states = year, transition_length = 0.2)
+  theme_test( ) +
+  labs(title = 'Year: {closest_state}')  +
+    scale_x_discrete(breaks = c("methane", "co2", "coal_co2", "gas_co2",  "nitrous_oxide", "oil_co2" ) , labels = c("Methane"," Total CO2", "Coal", "Natural Gas",  "Nitous Oxide", "Oil" )) +
+  labs(y = "Emissions in million tons", x = "Greenhouse gases & CO2 emission sources") +
+  geom_vline(xintercept = 3.5, color = "red", linetype="twodash" ) +
+  annotate("text", x = 1.5,  y=35000, label="GHGs", color = "navy", size = 3.5) +
+  annotate("text", x = 5,  y=35000, label="CO2 emission sources", color = "navy", size = 3.5)+
+  transition_states(states = year, transition_length = 0.2) 
 ```
 
 ```{r}
-animate(GHGsanim, renderer = gifski_renderer(), end_pause = 20 )
-
-anim_save(filename = "GHGsoftheWorld.gif", animation = GHGsanim, path = NULL)
+animate(GHGsanim, fps = 3,start_pause = 9, end_pause = 15, width = 750, height = 450)
+anim_save("ghgS.gif")
 ```
+
+```{r, 2018_only}
+World_GHGs %>%
+  filter(year == 2018) %>%
+  ggplot() +
+    geom_bar(aes(x = fct_relevel(GHG, c("methane", "nitrous_oxide", "co2" )), y = GHG_emissions, fill = GHG), stat="identity", width=0.75, color="white", position ="dodge") +
+  scale_fill_viridis_d()  +
+  theme_test( ) +
+  labs(title = 'Year: {closest_state}')  +
+    scale_x_discrete(breaks = c("methane", "co2", "coal_co2", "gas_co2",  "nitrous_oxide", "oil_co2" ) , labels = c("Methane"," Total CO2", "Coal", "Natural Gas",  "Nitous Oxide", "Oil" )) +
+  labs(y = "Emissions in million tons", x = "Green house gas") +
+  geom_vline(xintercept = 3.5, color = "red", linetype="twodash" ) +
+  annotate("text", x = 1.5,  y=35000, label="GHGs", color = "navy", size = 3.5) +
+  annotate("text", x = 5,  y=35000, label="CO2 emission sources", color = "navy", size = 3.5)
+  
+``` 
 
