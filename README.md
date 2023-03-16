@@ -1,4 +1,4 @@
-Visualizing global CO2 emmisions data over the course of recent history
+Visualizing global and regional CO2 emmisions data over the course of recent history.
 ================
 The Emitters
 
