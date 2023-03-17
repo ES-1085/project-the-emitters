@@ -1,0 +1,143 @@
+```{r,load_packages&datasets}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(gganimate)
+library(rmapshaper)
+library(transformr)
+library("rnaturalearth")
+library("rnaturalearthdata")
+library("gganimate")
+library(gifski)
+library(png)
+library(visdat)
+library(naniar)
+library("tidyr")
+library(av)
+library("rnaturalearth")
+library("rnaturalearthdata")
+
+CO2_data<- read_csv("../data/owid-co2-data.csv")
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+class(world)
+
+colnames(world)[10] ="iso_code"
+```
+
+
+```{r, Tidy_data}
+Small_co2_dataset <- CO2_data %>% 
+  select("country", "year", "population", "co2", "co2_per_capita", "iso_code", "gdp", "co2_per_capita", "co2_including_luc_growth_abs") %>%
+  mutate("GDP_per_capita" = gdp/population)
+
+world_continents <- world %>%
+  select(iso_code, continent)
+```
+
+```{r, merge&filter_data}
+CO2_continents_data <- Small_co2_dataset %>%
+  full_join(world_continents)
+
+CO2_continents_data %>%
+  filter(is.na(continent) == TRUE) %>%
+  distinct(country) 
+```
+
+```{r, remove_regions&continents}
+Only_Countries_CO2 <- CO2_continents_data %>%
+  drop_na(continent)
+```
+
+
+
+```{r, global_growth_anim}
+gdpxco2growth_countries <- 
+  Only_Countries_CO2 %>%
+  filter(year >= 1945,
+          year <= 2018,
+         iso_code != "ATA", 
+         continent != "Seven seas (open ocean)",
+         country != "China",
+         iso_code != "USA",
+         country != "India") %>%
+    ggplot(aes(x =gdp/1000000000000, y = co2_including_luc_growth_abs)) +
+  geom_point(aes(color = continent, size = population), alpha = 0.35) +
+  scale_size_area( max_size = 14, guide = FALSE,) +
+  ylim(-450,450) +
+  stat_smooth(formula = y ~ x, linewidth = 0.35, color = "blue", linetype="dotdash", se = FALSE) +
+  geom_hline(linewidth = 0.475, yintercept = 0,  color = "black")+
+  scale_x_continuous(labels=scales::dollar_format()) +
+  scale_colour_brewer(palette = "Set1") +
+  theme(legend.position=c(0.8,0.4)) +
+  theme_minimal(base_size = 15, base_family = "") +
+  theme_test() +
+  labs(title = 'Annual oscillations in production-based co2 emmisions in {closest_state}', x = "GDP in trillion", y= "Annual co2 emissions variation in million tons", subtitle = "Countries' population is represented by the size of each dot", alt = paste("Animated graph showing the annual difference of production-based CO2 emission in comparison to the previous year. Countries above the baseline 0 mean that they have emmited more CO2 than the previous recorded year, similarly, below the baseline means that the country has emmited less the current year. Three big outliers were removed to show more attention to the global trend without them, these three outliers (China, United States and India) massively impact the global trendline in blue. Without them, we can infer that rich countries seem to stay relative close to the baseline, whereas less wealthy countries present more variation because they tend to be impacted by economical and social instability affecting their emissions"), caption = "The outliers (China, United States and India) have been removed") +
+  transition_states(states = year, transition_length = 0.65, wrap = FALSE)
+
+```
+
+```{r, save_growth_anim}
+animate(gdpxco2growth_countries, fps = 3,start_pause = 12, end_pause = 20, width = 750, height = 450)
+anim_save("countries.co2.growth.gif")
+```
+
+```{r, 2018_growth}
+Only_Countries_CO2 %>%
+  filter(year == 2018,
+         iso_code != "ATA", 
+         continent != "Seven seas (open ocean)") %>%
+    ggplot(aes(x =gdp/1000000000000, y = co2_including_luc_growth_abs)) +
+  geom_point(aes(size = population, color = continent), alpha = 0.35) +
+  scale_size_area(guide = FALSE, max_size = 15) +
+  scale_x_continuous(labels=scales::dollar_format()) +
+  ylim(-450,450) +
+  stat_smooth(formula = y ~ x, se = FALSE, linewidth = 0.35, color = "blue", linetype="dotdash") +
+  geom_hline(yintercept = 0, linewidth = 0.5, color = "black")+
+ scale_colour_brewer(palette = "Set1") +
+  theme(legend.position=c(0.8,0.4)) +
+  theme_test(base_size = 15, base_family = "") +
+  annotate("text", x = 17, y = 450, label = "China", color = "blue") +
+  annotate("text", x = 8, y = 232, label = "India", color = "blue") +
+  annotate("text", x = 17, y = 111, label = "United States", color = "purple") +
+  labs(title = 'Annual change in production-based co2 emmisions in 2018', x = "GDP in trillion", y= "Annual production-based co2 emissions", subtitle = "Countries' population is represented by the size of each dot", alt = paste("Graph showing the annual difference of production-based CO2 emission in 2018 in respect to 2017. Countries above the baseline 0 mean that they have emmited more CO2 than the previous recorded year, similarly, below the baseline means that the country has emmited less the current year. Conspicously we can denote three big outliers in both axys: China, United States, and India. The three biggest pollutors are also the three wealthiest countries.The global blue trendline has been skewed upwards due to these ourliers, showing that globally we emmited more than last year by hundreds of million tons")) 
+```
+
+
+
+```{r, only-theworld-dataset}
+Only_world_ghg <- CO2_data %>%
+  select(country, year, oil_co2, gas_co2, coal_co2, co2, population, gdp, methane, nitrous_oxide, total_ghg_excluding_lucf,) %>%
+  filter(year >= 1990,
+         country == "World")
+```
+
+```{r, tidy-GHGsdata}
+World_GHGs <- Only_world_ghg %>%
+pivot_longer(c(oil_co2, gas_co2, coal_co2, methane, nitrous_oxide, co2 ), names_to = "GHG", values_to = "GHG_emissions")
+```
+
+
+```{r, animation_of_ghgs}
+  GHGsanim <- World_GHGs %>%
+  filter(year <= 2019) %>%
+  ggplot() +
+       geom_bar(aes(x = fct_relevel(GHG, c("methane", "nitrous_oxide", "co2" )), y = GHG_emissions, fill = GHG), stat="identity", width=0.75, color="white", position ="dodge") +
+  scale_fill_viridis_d()  +
+  theme_test( ) +
+    scale_x_discrete(breaks = c("methane", "co2", "coal_co2", "gas_co2",  "nitrous_oxide", "oil_co2" ) , labels = c("Methane"," Total CO2", "Coal", "Natural Gas",  "Nitous Oxide", "Oil" )) +
+  geom_vline(xintercept = 3.5, color = "red", linetype="twodash" ) +
+  annotate("text", x = 1,  y=35000, label="GHGs", color = "navy", size = 3.5) +
+  annotate("text", x = 5,  y=35000, label="CO2 emission sources", color = "navy", size = 3.5)+
+  transition_states(states = year, transition_length = 0.65, wrap = FALSE) +
+  theme(legend.position = "none") +
+  labs(y = "Emissions in million tons", x = "Greenhouse gases & CO2 emission sources", title = "Global emmisions per greenhouse gas and per co2 source in {closest_state}", alt = "Animation of bar graph showing global annual emissions since 1990 to 2019 depending on the greenhouse gas, or source of CO2. The graph is divided into two sections, left hand for GHGs and right hand for CO2 sources, both divided by a red dashline. The global trends increase steadily in 1990s, but once we enter the new millenium, the rate of growth increases, more noticibly in CO2 and coal emissions. China can be attributed to the increasing rate in CO2 and coal, as they have supply their high-demanded electricity with burning the dirtiest co2 source of all: coal. This also shows that instead of moving away from dirty and non-renewable sources of electricity like coal or oil, we are instead increasing our emissions at a concerning rate.") 
+```
+
+```{r}
+animate(GHGsanim, fps = 3,start_pause = 5, end_pause = 15, width = 750, height = 450)
+anim_save("GHGs&CO2source.gif")
+```
+
+
+
