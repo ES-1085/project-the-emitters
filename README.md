@@ -24,7 +24,7 @@ your project.
 
 ## Presentation
 
-Our presentation can be found [here](presentation/presentation.html). You can update this link to a Google Slides link.
+Our presentation can be found [here]([presentation/presentation.html](https://docs.google.com/presentation/d/18FdJH8AjCOKxJAkysUckcyhil2VZXAKmF_lORXVWm58/edit?usp=sharing)).
 
 ## Data
 
