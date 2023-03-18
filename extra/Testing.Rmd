@@ -18,6 +18,7 @@ library(plotly)
 
 ```{r}
 owid_co2_data<- read_csv("../data/owid-co2-data.csv")
+owid_co2_codebook<- read_csv("../data/owid-co2-codebook.csv")
 ```
 
 ```{r}

@@ -1,0 +1,88 @@
+```{r}
+plot_test <- Only_Countries_CO2 %>%   
+  filter(year > 1800) %>% 
+  filter(continent != "Antarctica") %>% 
+  filter(continent != "Seven seas (open ocean)") %>% 
+  ggplot(aes(x = population, y = co2)) + 
+  scale_color_viridis_d() +
+  geom_point(aes(color = continent)) + 
+  transition_states(year)+
+  labs(
+    title = "Country population vs. National CO2 emmissions",
+    subtitle = "Year: {closest_state}",
+    x = "Population",
+    y = "Annual CO2 Emmissions (Millions of Tons)",
+    alt = "Scatter plot of annual CO2 emissions and population by country and continent over time, where the majority of countries remain clustered around the origin while only 3 countries run continue out from the cluster, 2 Asian countries stray along the population axis and a North american country strays along the emissions axis")
+```
+```{r}
+animate(plot_test, renderer = gifski_renderer(), fps = 4)
+
+anim_save(filename = "plot_test_follow.gif", animation = plot_test, path = NULL)
+```
+
+
+```{r}
+plot_test <- Only_Countries_CO2 %>%   
+  filter(year > 1800) %>% 
+  filter(continent != "Antarctica") %>% 
+  filter(continent != "Seven seas (open ocean)") %>% 
+  ggplot(aes(x = population, y = co2)) + 
+  geom_point(aes(color = continent)) + 
+  scale_x_continuous(trans='log10') +
+  scale_y_continuous(trans='log10') +
+  scale_color_viridis_d() +
+  transition_states(year) +
+  labs(
+    title = "Country population vs. National CO2 emmissions,\n Axes scaled logarithmically",
+    subtitle = "Year: {closest_state}",
+    x = "Population",
+    y = "Annual CO2 Emmissions (Millions of Tons)",
+    alt = "Scatter plot of annual CO2 emissions and population by country and continent over time, where the points cluster to form a clear positive correlation. Imagining the graph to be divided by a y= x line from (0,0), African countries tend to fall on the population side of the cluster, with Europe and North American countries tending to fall on the Emmissions side of the cluster. The rest are generally spread throughout")
+```
+```{r}
+animate(plot_test, renderer = gifski_renderer(), fps = 4)
+
+anim_save(filename = "plot_test_follow.gif", animation = plot_test, path = NULL)
+```
+
+Graphing a histogram of co2 per capita over time, you can see some strong outliers from ~1950-1980. What are these countries and why are their values so high?
+
+```{r}
+hist_test_per_cap <- CO2_data %>%   
+  filter(year > 1900) %>% 
+  ggplot(aes(x = co2_per_capita)) + 
+  geom_histogram(binwidth = 8, color = "midnightblue") +
+  transition_states(year) +
+  labs(title = "CO2 Emissions per Capita",
+       subtitle = "Year: {closest_state}",
+       x = "CO2 Emissions per Capita (Tons/Person)",
+       y = "Number of Countries",
+       alt = "A Histogram of Co2 emissions per capita, animated over time where the vast majority of countries fall within the first or second bin, with several substantial outliers appearing in the frames from 1950 - 1980")
+```
+```{r}
+animate(hist_test_per_cap, renderer = gifski_renderer(), fps = 5)
+
+anim_save(filename = "histogram_per_cap.gif", animation = hist_test_per_cap, path = NULL)
+```
+
+```{r}
+nighC <- CO2_data %>% 
+  filter(co2_per_capita > 50) %>% 
+  count(country, sort = T)
+```
+
+```{r}
+Only_Countries_CO2 %>% 
+  filter(year > 1850) %>% 
+  filter(continent != "Antarctica") %>% 
+  filter(continent != "Seven seas (open ocean)") %>% 
+  ggplot(aes(x = year, y = co2, color = continent)) +
+  scale_fill_viridis_d() +
+  geom_point(alpha = 0.5, size = 0.1)+
+  geom_path(alpha = 0.4) +
+  labs(
+    title = "Date vs. National CO2 emmissions",
+    x = "Year",
+    y = "Annual CO2 Emmissions",
+    alt = "")
+```

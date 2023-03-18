@@ -24,16 +24,12 @@ your project.
 
 ## Presentation
 
-Our presentation can be found [here](presentation/presentation.html). You can update this link to a Google Slides link.
+Our presentation can be found [here](https://docs.google.com/presentation/d/18FdJH8AjCOKxJAkysUckcyhil2VZXAKmF_lORXVWm58/edit?usp=sharing). You can update this link to a Google Slides link.
 
 ## Data
 
-Include a citation for your data here. See
-<http://libraryguides.vu.edu.au/c.php?g=386501&p=4347840> for guidance
-on proper citation for datasets. If you got your data off the web, make
-sure to note the retrieval date.
+Ritchie, H, Roser, M, Mathieu, E, MacDonald, B, Rosado, P 2022, Data on CO2 and Greenhouse Gas Emissions, electronic dataset, Our World In Data, viewed January 12, 2023, <https://ourworldindata.org/co2-and-greenhouse-gas-emissions>
 
 ## References
 
-List any references here. You should, at a minimum, list your data
-source.
+Our World in Data - Data on CO2 and Greenhouse Gas Emissions
