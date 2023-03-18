@@ -101,7 +101,7 @@ responsibility_data <- merged_data %>%
   filter(year < 2019)
 ```
 
-```{r correlation between gdp and CO2 emissions coloured by time frame}
+```{r, fig.alt = "This plot show the correlation between CO2 emmisions and GDP. We see a general trend of CO2 and gdp increasing over time." correlation between gdp and CO2 emissions coloured by time frame.}
 Our_co2_dataset %>%
   filter(country != 'World') %>% 
 ggplot(aes(y = co2, x = gdp, color = years)) +
@@ -109,7 +109,7 @@ ggplot(aes(y = co2, x = gdp, color = years)) +
   labs(title = "Correlation between GDP and yearly carbon emissions", x = "GDP", y = "CO2")
 ```
 
-```{r create map coloured by responsibility value}
+```{r, fig.alt="Figure showing a map of the world coloured by 2018 reponcibility value. Canada, the USA, Saudia Arabia, Australia, and Norway seem to have the highest responcibility value." create map coloured by responsibility value}
 merged_data %>% 
   filter(year == 2018) %>% 
 ggplot(aes(fill = responsibility_value)) +
@@ -120,7 +120,7 @@ ggplot(aes(fill = responsibility_value)) +
   theme_void()
 ```
 
-```{r create map coloured by CO2 per capita}
+```{r, fig.alt="Figure showing a map of the world coloured by 2018 CO2 emissions per capita. Kazakhstan, Saudi Arabia, Mongolia, United States, Canada, and Australia seem to have the highest CO2 emissions per capita."  create map coloured by CO2 per capita}
 merged_data %>% 
   filter(year == 2018) %>% 
 ggplot(aes(fill = co2_per_capita)) +
@@ -131,7 +131,7 @@ ggplot(aes(fill = co2_per_capita)) +
   theme_void()
 ```
 
-```{r Create map coloured by CO2}
+```{r, fig.alt="Figure showing a map of the world coloured by 2018 CO2 emissions. The USA and China have by far the greatest CO2 emissions."  Create map coloured by CO2}
 merged_data %>% 
   filter(year == 2018) %>% 
 ggplot(aes(fill = co2)) +
@@ -142,7 +142,7 @@ ggplot(aes(fill = co2)) +
   theme_void()
 ```
 
-```{r create interactive leaflet map coloured by responsibility value}
+```{r, fig.alt="Figure showing an inteactive map of the world coloured by 2018 reponcibility value. Canada, the USA, Saudia Arabia, Australia, and Norway seem to have the highest responcibility value." create interactive leaflet map coloured by responsibility value}
 bins = c(0, 125000, 250000, 375000, 500000, 625000, 750000, 875000, 1000000, 100000000)
 
 pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
@@ -165,7 +165,7 @@ leaflet() %>%
     )
 ```
 
-```{r create interactive leaflet map coloured by CO2 per capita}
+```{r, fig.alt="Figure showing an interactive map of the world coloured by 2018 CO2 emissions per capita. Kazakhstan, Saudi Arabia, Mongolia, United States, Canada, and Australia seem to have the highest CO2 emissions per capita." create interactive leaflet map coloured by CO2 per capita}
 bins = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 100)
 
 pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
@@ -186,7 +186,7 @@ leaflet() %>%
   )
 ```
 
-```{r create interactive leaflet map coloured by CO2}
+```{r, fig.alt="Figure showing a map of the world coloured by 2018 CO2 emissions. The USA and China have by far the greatest CO2 emissions." create interactive leaflet map coloured by CO2}
 bins = c(0, 1, 4.5, 20.6, 93, 418.1, 1881.5, 8466.9, 38101)
 
 pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
@@ -219,7 +219,7 @@ my_map <- ggplot() +
   labs(title = "Year: {closest_state}")
 ```
 
-```{r animate map and save animation as an mp4 file}
+```{r, fig.alt="Displays an animation of countries responcibilty towards climate change as indicate by their CO2 emissions per capita times their GDP per capita. We see that most countries do not have data until around 1950. In addition, we see the value for countries such as Canada, the USA, Saudia Arabia, Australia, and Norway increase dramatically up until 2018, with the USA sustaining a high responcibility value from 1950 onwards." animate map and save animation as an mp4 file}
 animate(R_map2, fps=2, renderer = av_renderer())
 anim_save(filename = "R_map.mp4")
 ```
