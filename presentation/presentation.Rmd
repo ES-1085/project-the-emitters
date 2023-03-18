@@ -10,8 +10,8 @@ library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(rmapshaper)
-library(transformr)
-library("rnaturalearth")
+#library(transformr)
+#library("rnaturalearth")
 library("rnaturalearthdata")
 library(gifski)
 library(png) 
@@ -31,16 +31,16 @@ Our_co2_dataset <- owid_co2_data %>%
 ```
 
 ```{r import world map data}
-world <- ne_countries(scale = "medium", returnclass = "sf")
-class(world)
+# world <- ne_countries(scale = "medium", returnclass = "sf")
+# class(world)
 
 ## [1] "sf"  
 ## [1] "data.frame"
 ```
 
 ```{r reconfigure heading titles and fill in missing data}
-names(world)[10] <- "iso_code"
-names(world)[19] <- "country"
+# names(world)[10] <- "iso_code"
+# names(world)[19] <- "country"
 
 
 all_countries <- Our_co2_dataset %>%
@@ -71,21 +71,21 @@ Our_co2_dataset <- Our_co2_dataset %>%
 
 
 ```{r merge our dataset with spacial data}
-merged_data <- full_join(world, CO2_complete, by = c("iso_code"))
+# merged_data <- full_join(world, CO2_complete, by = c("iso_code"))
 ```
 
 ```{r create a sub dataset for testing}
-sub_data <- merged_data %>% 
-  filter(year > 2017)
+# sub_data <- merged_data %>% 
+#   filter(year > 2017)
 ```
 
 ```{r define year range for animation}
-responsibility_data <- merged_data %>% 
-  filter(year > 1849) %>% 
-  filter(year < 2019)
+# responsibility_data <- merged_data %>% 
+#   filter(year > 1849) %>% 
+#   filter(year < 2019)
 ```
 
-```{r, fig.alt = "This plot show the correlation between CO2 emmisions and GDP. We see a general trend of CO2 and gdp increasing over time." correlation between gdp and CO2 emissions coloured by time frame.}
+```{r correlation between gdp and CO2 emissions coloured by time frame, fig.alt = "This plot show the correlation between CO2 emmisions and GDP. We see a general trend of CO2 and gdp increasing over time."}
 Our_co2_dataset %>%
   filter(country != 'World') %>% 
 ggplot(aes(y = co2, x = gdp, color = years)) +
@@ -93,195 +93,198 @@ ggplot(aes(y = co2, x = gdp, color = years)) +
   labs(title = "Correlation between GDP and yearly carbon emissions", x = "GDP", y = "CO2")
 ```
 
-```{r, fig.alt="Figure showing a map of the world coloured by 2018 reponcibility value. Canada, the USA, Saudia Arabia, Australia, and Norway seem to have the highest responcibility value." create map coloured by responsibility value}
-merged_data %>% 
-  filter(year == 2018) %>% 
-ggplot(aes(fill = responsibility_value)) +
-    geom_sf() +
-  scale_fill_gradientn(colours = c("white", "red", "black"), 
-                         values = rescale(c(0, 1, 3)),
-                         guide = "colorbar", limits=c(0, 1100000)) +
-  theme_void()
+```{r create_map_coloured_by_responsibility_value, fig.alt = "Figure showing a map of the world coloured by 2018 reponcibility value. Canada, the USA, Saudia Arabia, Australia, and Norway seem to have the highest responcibility values."}
+
+# merged_data %>% 
+#   filter(year == 2018) %>% 
+# ggplot(aes(fill = responsibility_value)) +
+#     geom_sf() +
+#   scale_fill_gradientn(colours = c("white", "red", "black"), 
+#                          values = rescale(c(0, 1, 3)),
+#                          guide = "colorbar", limits=c(0, 1100000)) +
+#   theme_void()
 ```
 
-```{r, fig.alt="Figure showing a map of the world coloured by 2018 CO2 emissions per capita. Kazakhstan, Saudi Arabia, Mongolia, United States, Canada, and Australia seem to have the highest CO2 emissions per capita."  create map coloured by CO2 per capita}
-merged_data %>% 
-  filter(year == 2018) %>% 
-ggplot(aes(fill = co2_per_capita)) +
-    geom_sf() +
-  scale_fill_gradientn(colours = c("white", "red", "black"),
-                       values = rescale(c(0, 1, 3)),
-                       guide = "colorbar", limits=c(0, 20)) +
-  theme_void()
+```{r create_map_coloured_by_CO2_per_capita, fig.alt="Figure showing a map of the world coloured by 2018 CO2 emissions per capita. Kazakhstan, Saudi Arabia, Mongolia, United States, Canada, and Australia seem to have the highest CO2 emissions per capita."}
+# merged_data %>% 
+#   filter(year == 2018) %>% 
+# ggplot(aes(fill = co2_per_capita)) +
+#     geom_sf() +
+#   scale_fill_gradientn(colours = c("white", "red", "black"),
+#                        values = rescale(c(0, 1, 3)),
+#                        guide = "colorbar", limits=c(0, 20)) +
+#   theme_void()
 ```
 
-```{r, fig.alt="Figure showing a map of the world coloured by 2018 CO2 emissions. The USA and China have by far the greatest CO2 emissions."  Create map coloured by CO2}
-merged_data %>% 
-  filter(year == 2018) %>% 
-ggplot(aes(fill = co2)) +
-    geom_sf() +
-  scale_fill_gradientn(colours = c("white", "red", "black"),
-                       values = rescale(c(0, 1, 3)),
-                       guide = "colorbar", limits=c(0, 11000)) +
-  theme_void()
+```{r  Create_map_coloured_by_CO2, fig.alt="Figure showing a map of the world coloured by 2018 CO2 emissions. The USA and China have by far the greatest CO2 emissions."}
+# merged_data %>% 
+#   filter(year == 2018) %>% 
+# ggplot(aes(fill = co2)) +
+#     geom_sf() +
+#   scale_fill_gradientn(colours = c("white", "red", "black"),
+#                        values = rescale(c(0, 1, 3)),
+#                        guide = "colorbar", limits=c(0, 11000)) +
+#   theme_void()
 ```
 
-```{r, fig.alt="Figure showing an inteactive map of the world coloured by 2018 reponcibility value. Canada, the USA, Saudia Arabia, Australia, and Norway seem to have the highest responcibility value." create interactive leaflet map coloured by responsibility value}
-bins = c(0, 125000, 250000, 375000, 500000, 625000, 750000, 875000, 1000000, 100000000)
-
-pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
-
-#labels <- sprintf("<strong>%s</strong><br/>%g responsibility_value", merged_data$name, merged_data$responsibility_value) %>% lapply(htmltools::HTML)
-#head(labels, 1)
-
-merged_data %>%
-  filter(year == 2018) %>%
-leaflet() %>%
-  addTiles() %>%
-  addPolygons(
-    fillColor = ~pal(responsibility_value), # specify fill color for polygons
-    stroke = TRUE, # add border to polygons
-    weight = 0.5, # set border weight
-    opacity = 1, # set border opacity
-    color = "black", # set border color
-    fillOpacity = 0.7, # set fill opacity
-    label = ~responsibility_value
-    )
+```{r create_interactive_leaflet_map_coloured_by_responsibility_value, fig.alt="Figure showing an inteactive map of the world coloured by 2018 reponcibility value. Canada, the USA, Saudia Arabia, Australia, and Norway seem to have the highest responcibility value."}
+# bins = c(0, 125000, 250000, 375000, 500000, 625000, 750000, 875000, 1000000, 100000000)
+# 
+# pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
+# 
+# #labels <- sprintf("<strong>%s</strong><br/>%g responsibility_value", merged_data$name, merged_data$responsibility_value) %>% lapply(htmltools::HTML)
+# #head(labels, 1)
+# 
+# merged_data %>%
+#   filter(year == 2018) %>%
+# leaflet() %>%
+#   addTiles() %>%
+#   addPolygons(
+#     fillColor = ~pal(responsibility_value), # specify fill color for polygons
+#     stroke = TRUE, # add border to polygons
+#     weight = 0.5, # set border weight
+#     opacity = 1, # set border opacity
+#     color = "black", # set border color
+#     fillOpacity = 0.7, # set fill opacity
+#     label = ~responsibility_value
+#     )
 ```
 
-```{r, fig.alt="Figure showing an interactive map of the world coloured by 2018 CO2 emissions per capita. Kazakhstan, Saudi Arabia, Mongolia, United States, Canada, and Australia seem to have the highest CO2 emissions per capita." create interactive leaflet map coloured by CO2 per capita}
-bins = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 100)
-
-pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
-#pal <- colorNumeric("Reds", domain = merged_data$responsibility_value)
-
-merged_data %>%
-  filter(year == 2018) %>%
-leaflet() %>%
-  addTiles() %>%
-  addPolygons(
-    fillColor = ~pal(co2_per_capita), # specify fill color for polygons
-    stroke = TRUE, # add border to polygons
-    weight = 0.5, # set border weight
-    opacity = 1, # set border opacity
-    color = "black", # set border color
-    fillOpacity = 0.7, # set fill opacity
-    label = ~co2_per_capita # add hover-over label for country name
-  )
+```{r create_interactive_leaflet_map_coloured_by_CO2_per_capita, fig.alt="Figure showing an interactive map of the world coloured by 2018 CO2 emissions per capita. Kazakhstan, Saudi Arabia, Mongolia, United States, Canada, and Australia seem to have the highest CO2 emissions per capita."}
+# bins = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 100)
+# 
+# pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
+# #pal <- colorNumeric("Reds", domain = merged_data$responsibility_value)
+# 
+# merged_data %>%
+#   filter(year == 2018) %>%
+# leaflet() %>%
+#   addTiles() %>%
+#   addPolygons(
+#     fillColor = ~pal(co2_per_capita), # specify fill color for polygons
+#     stroke = TRUE, # add border to polygons
+#     weight = 0.5, # set border weight
+#     opacity = 1, # set border opacity
+#     color = "black", # set border color
+#     fillOpacity = 0.7, # set fill opacity
+#     label = ~co2_per_capita # add hover-over label for country name
+#   )
 ```
 
-```{r, fig.alt="Figure showing a map of the world coloured by 2018 CO2 emissions. The USA and China have by far the greatest CO2 emissions." create interactive leaflet map coloured by CO2}
-bins = c(0, 1, 4.5, 20.6, 93, 418.1, 1881.5, 8466.9, 38101)
-
-pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
-#pal <- colorNumeric("Reds", domain = merged_data$responsibility_value)
-
-merged_data %>%
-  filter(year == 2018) %>%
-leaflet() %>%
-  addTiles() %>%
-  addPolygons(
-    fillColor = ~pal(co2), # specify fill color for polygons
-    stroke = TRUE, # add border to polygons
-    weight = 0.5, # set border weight
-    opacity = 1, # set border opacity
-    color = "black", # set border color
-    fillOpacity = 0.7, # set fill opacity
-    label = ~co2# add hover-over label for country name
-  )
+```{r create_interactive_leaflet_map_coloured_by_CO2, fig.alt="Figure showing a map of the world coloured by 2018 CO2 emissions. The USA and China have by far the greatest CO2 emissions."}
+# bins = c(0, 1, 4.5, 20.6, 93, 418.1, 1881.5, 8466.9, 38101)
+# 
+# pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
+# #pal <- colorNumeric("Reds", domain = merged_data$responsibility_value)
+# 
+# merged_data %>%
+#   filter(year == 2018) %>%
+# leaflet() %>%
+#   addTiles() %>%
+#   addPolygons(
+#     fillColor = ~pal(co2), # specify fill color for polygons
+#     stroke = TRUE, # add border to polygons
+#     weight = 0.5, # set border weight
+#     opacity = 1, # set border opacity
+#     color = "black", # set border color
+#     fillOpacity = 0.7, # set fill opacity
+#     label = ~co2# add hover-over label for country name
+#   )
 ```
 
-```{r create animated map}
-my_map <- ggplot() +
-  geom_sf(data = merged_data, aes(fill = co2_per_capita, group = year)) +
-  scale_fill_gradientn(colours = c("white", "red", "black"), 
-                         values = rescale(c(0, 1, 3)),
-                         guide = "colorbar", limits=c(0, 25)) +
-  theme_void() +
-  transition_states(year, transition_length = 2, state_length = 1) +
-  ease_aes('linear') +
-  labs(title = "Year: {closest_state}")
+```{r create_animated_map}
+# my_map <- ggplot() +
+#   geom_sf(data = merged_data, aes(fill = co2_per_capita, group = year)) +
+#   scale_fill_gradientn(colours = c("white", "red", "black"), 
+#                          values = rescale(c(0, 1, 3)),
+#                          guide = "colorbar", limits=c(0, 25)) +
+#   theme_void() +
+#   transition_states(year, transition_length = 2, state_length = 1) +
+#   ease_aes('linear') +
+#   labs(title = "Year: {closest_state}")
 ```
 
-```{r, fig.alt="Displays an animation of countries responcibilty towards climate change as indicate by their CO2 emissions per capita times their GDP per capita. We see that most countries do not have data until around 1950. In addition, we see the value for countries such as Canada, the USA, Saudia Arabia, Australia, and Norway increase dramatically up until 2018, with the USA sustaining a high responcibility value from 1950 onwards." animate map and save animation as an mp4 file}
-animate(my_map, fps=2, renderer = av_renderer())
-anim_save(filename = "R_map.mp4")
+```{r animate_map_and_save_animation_as_mp4_file, fig.alt="Displays an animation of countries responcibilty towards climate change as indicate by their CO2 emissions per capita times their GDP per capita. We see that most countries do not have data until around 1950. In addition, we see the value for countries such as Canada, the USA, Saudia Arabia, Australia, and Norway increase dramatically up until 2018, with the USA sustaining a high responcibility value from 1950 onwards."}
+
+# animate(my_map, fps=2, renderer = av_renderer())
+# anim_save(filename = "R_map.mp4")
 ```
 
 
 ```{r create_animation_scatter_1}
-Co2_vs_pop_scatter <- Only_Countries_CO2 %>%   
-  filter(year > 1800) %>% 
-  filter(continent != "Antarctica") %>% 
-  filter(continent != "Seven seas (open ocean)") %>% 
-  ggplot(aes(x = population, y = co2)) + 
-  scale_color_viridis_d() +
-  geom_point(aes(color = continent)) + 
-  transition_states(year)+
-  labs(
-    title = "Country population vs. National CO2 emmissions",
-    subtitle = "Year: {closest_state}",
-    x = "Population",
-    y = "Annual CO2 Emmissions (Millions of Tons)")
+# Co2_vs_pop_scatter <- Only_Countries_CO2 %>%   
+#   filter(year > 1800) %>% 
+#   filter(continent != "Antarctica") %>% 
+#   filter(continent != "Seven seas (open ocean)") %>% 
+#   ggplot(aes(x = population, y = co2)) + 
+#   scale_color_viridis_d() +
+#   geom_point(aes(color = continent)) + 
+#   transition_states(year)+
+#   labs(
+#     title = "Country population vs. National CO2 emmissions",
+#     subtitle = "Year: {closest_state}",
+#     x = "Population",
+#     y = "Annual CO2 Emmissions (Millions of Tons)")
 ```
 ```{r save_animation_scatter_1, fig.alt="Scatter plot of annual CO2 emissions and population by country and continent over time, where the majority of countries remain clustered around the origin while only 3 countries run continue out from the cluster, 2 Asian countries stray along the population axis and a North american country strays along the emissions axis"}
-animate(Co2_vs_pop_scatter, renderer = gifski_renderer(), fps = 4)
-
-anim_save(filename = "Co2_vs_pop_scatter.gif", animation = Co2_vs_pop_scatter, path = NULL)
+# animate(Co2_vs_pop_scatter, renderer = gifski_renderer(), fps = 4)
+# 
+# anim_save(filename = "Co2_vs_pop_scatter.gif", animation = Co2_vs_pop_scatter, path = NULL)
 ```
 
 
 ```{r create_animation_scatter_2}
-Co2_vs_pop_scatter_log <- Only_Countries_CO2 %>%   
-  filter(year > 1800) %>% 
-  filter(continent != "Antarctica") %>% 
-  filter(continent != "Seven seas (open ocean)") %>% 
-  ggplot(aes(x = population, y = co2)) + 
-  geom_point(aes(color = continent)) + 
-  scale_x_continuous(trans='log10') +
-  scale_y_continuous(trans='log10') +
-  scale_color_viridis_d() +
-  transition_states(year) +
-  labs(
-    title = "Country population vs. National CO2 emmissions,\n Axes scaled logarithmically",
-    subtitle = "Year: {closest_state}",
-    x = "Population",
-    y = "Annual CO2 Emmissions (Millions of Tons)")
+# Co2_vs_pop_scatter_log <- Only_Countries_CO2 %>%   
+#   filter(year > 1800) %>% 
+#   filter(continent != "Antarctica") %>% 
+#   filter(continent != "Seven seas (open ocean)") %>% 
+#   ggplot(aes(x = population, y = co2)) + 
+#   geom_point(aes(color = continent)) + 
+#   scale_x_continuous(trans='log10') +
+#   scale_y_continuous(trans='log10') +
+#   scale_color_viridis_d() +
+#   transition_states(year) +
+#   labs(
+#     title = "Country population vs. National CO2 emmissions,\n Axes scaled logarithmically",
+#     subtitle = "Year: {closest_state}",
+#     x = "Population",
+#     y = "Annual CO2 Emmissions (Millions of Tons)")
 ```
 ```{r save_animation_scatter_2, fig.alt="Scatter plot of annual CO2 emissions and population by country and continent over time, where the points cluster to form a clear positive correlation. Imagining the graph to be divided by a y= x line from (0,0), African countries tend to fall on the population side of the cluster, with Europe and North American countries tending to fall on the Emmissions side of the cluster. The rest are generally spread throughout"}
-animate(Co2_vs_pop_scatter_log, renderer = gifski_renderer(), fps = 4)
-
-anim_save(filename = "Co2_vs_pop_scatter_log.gif", animation = Co2_vs_pop_scatter_log, path = NULL)
+# animate(Co2_vs_pop_scatter_log, renderer = gifski_renderer(), fps = 4)
+# 
+# anim_save(filename = "Co2_vs_pop_scatter_log.gif", animation = Co2_vs_pop_scatter_log, path = NULL)
 ```
 
 ```{r create_histogram}
-hist_test_per_cap <- CO2_data %>%   
-  filter(year > 1900) %>% 
-  ggplot(aes(x = co2_per_capita)) + 
-  geom_histogram(binwidth = 8, color = "midnightblue") +
-  transition_states(year) +
-  labs(title = "CO2 Emissions per Capita",
-       subtitle = "Year: {closest_state}",
-       x = "CO2 Emissions per Capita (Tons/Person)",
-       y = "Number of Countries")
+# animate map and save animation as an mp4 file
+# hist_test_per_cap <- CO2_data %>%    
+#   filter(year > 1900) %>% 
+#   ggplot(aes(x = co2_per_capita)) + 
+#   geom_histogram(binwidth = 8, color = "midnightblue") +
+#   transition_states(year) +
+#   labs(title = "CO2 Emissions per Capita",
+#        subtitle = "Year: {closest_state}",
+#        x = "CO2 Emissions per Capita (Tons/Person)",
+#        y = "Number of Countries")
 ```
 ```{r save_histogram, fig.alt="A Histogram of Co2 emissions per capita, animated over time where the vast majority of countries fall within the first or second bin, with several substantial outliers appearing in the frames from 1950 - 1980"}
-animate(hist_test_per_cap, renderer = gifski_renderer(), fps = 5)
-
-anim_save(filename = "histogram_per_cap.gif", animation = hist_test_per_cap, path = NULL)
+# animate(hist_test_per_cap, renderer = gifski_renderer(), fps = 5)
+# 
+# anim_save(filename = "histogram_per_cap.gif", animation = hist_test_per_cap, path = NULL)
 ```
 
-```{r create_line_graph, fig.alt="A line graph of national co2 emissions and year, colored by country where an Asian country spikes up to have the hightest values in the 2000s. Under it, with smaller values are a North American country, and Asian country, and a european country. Beneath those lines are lines representing every other country in the the world, condensed by the scale so much that they are indistingishable.}
-Only_Countries_CO2 %>% 
-  filter(year > 1850) %>% 
-  filter(continent != "Antarctica") %>% 
-  filter(continent != "Seven seas (open ocean)") %>% 
-  ggplot(aes(x = year, y = co2, color = continent)) +
-  scale_fill_viridis_d() +
-  geom_point(alpha = 0.5, size = 0.1)+
-  geom_path(alpha = 0.4) +
-  labs(
-    title = "Date vs. National CO2 emmissions",
-    x = "Year",
-    y = "Annual CO2 Emmissions (Millions of Tons)")
+```{r create_line_graph, fig.alt="A line graph of national co2 emissions and year, colored by country where an Asian country spikes up to have the hightest values in the 2000s. Under it, with smaller values are a North American country, and Asian country, and a european country. Beneath those lines are lines representing every other country in the the world, condensed by the scale so much that they are indistingishable."}
+# Only_Countries_CO2 %>% 
+#   filter(year > 1850) %>% 
+#   filter(continent != "Antarctica") %>% 
+#   filter(continent != "Seven seas (open ocean)") %>% 
+#   ggplot(aes(x = year, y = co2, color = continent)) +
+#   scale_fill_viridis_d() +
+#   geom_point(alpha = 0.5, size = 0.1)+
+#   geom_path(alpha = 0.4) +
+#   labs(
+#     title = "Date vs. National CO2 emmissions",
+#     x = "Year",
+#     y = "Annual CO2 Emmissions (Millions of Tons)")
 ```

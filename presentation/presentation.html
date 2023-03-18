@@ -532,7 +532,16 @@ ggplot(aes(y = co2, x = gdp, color = years)) +
 <pre class="r"><code># animate(Co2_vs_pop_scatter_log, renderer = gifski_renderer(), fps = 4)
 # 
 # anim_save(filename = &quot;Co2_vs_pop_scatter_log.gif&quot;, animation = Co2_vs_pop_scatter_log, path = NULL)</code></pre>
-<pre class="r"><code># animate map and save animation as an mp4 file</code></pre>
+<pre class="r"><code># animate map and save animation as an mp4 file
+# hist_test_per_cap &lt;- CO2_data %&gt;%    
+#   filter(year &gt; 1900) %&gt;% 
+#   ggplot(aes(x = co2_per_capita)) + 
+#   geom_histogram(binwidth = 8, color = &quot;midnightblue&quot;) +
+#   transition_states(year) +
+#   labs(title = &quot;CO2 Emissions per Capita&quot;,
+#        subtitle = &quot;Year: {closest_state}&quot;,
+#        x = &quot;CO2 Emissions per Capita (Tons/Person)&quot;,
+#        y = &quot;Number of Countries&quot;)</code></pre>
 <pre class="r"><code># animate(hist_test_per_cap, renderer = gifski_renderer(), fps = 5)
 # 
 # anim_save(filename = &quot;histogram_per_cap.gif&quot;, animation = hist_test_per_cap, path = NULL)</code></pre>
