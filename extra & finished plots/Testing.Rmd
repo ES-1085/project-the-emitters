@@ -1,0 +1,208 @@
+```{r}
+#install.packages("ggplot2")
+library(gganimate)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(gganimate)
+library(rmapshaper)
+library(transformr)
+library("rnaturalearth")
+library("rnaturalearthdata")
+library("gganimate")
+library(gifski)
+library(png) 
+library(scales)
+library(leaflet)
+library(animation)
+library(av)
+```
+
+```{r}
+owid_co2_data<- read_csv("../data/owid-co2-data.csv")
+owid_co2_codebook<- read_csv("../data/owid-co2-codebook.csv")
+```
+
+```{r}
+CO2_data <- owid_co2_data
+```
+
+
+```{r}
+Our_co2_dataset <- owid_co2_data %>% 
+  select("country", "year", "population", "co2", "co2_per_capita", "iso_code", "gdp") %>% 
+  filter(country != "Antarctica")
+```
+
+```{r}
+world <- ne_countries(scale = "medium", returnclass = "sf")
+class(world)
+
+## [1] "sf"  
+## [1] "data.frame"
+```
+
+```{r}
+names(world)[10] <- "iso_code"
+names(world)[19] <- "country"
+
+
+all_countries <- Our_co2_dataset %>%
+  expand(iso_code, year)
+
+
+CO2_complete <- left_join(all_countries, Our_co2_dataset, by = c("iso_code", "year"))
+
+```
+
+```{r}
+CO2_complete <- CO2_complete %>%
+  mutate(gdp_per_capita = gdp / population) %>% 
+  mutate(responsibility_value = gdp_per_capita * co2_per_capita)
+```
+
+
+```{r}
+merged_data <- full_join(world, CO2_complete, by = c("iso_code"))
+```
+
+```{r}
+sub_data <- merged_data %>% 
+  filter(year > 2019)
+```
+
+```{r}
+responsibility_data <- merged_data %>% 
+  filter(year > 1849) %>% 
+  filter(year < 2019)
+```
+
+
+```{r}
+merged_data %>% 
+  filter(year == 2018) %>% 
+ggplot(aes(fill = responsibility_value)) +
+    geom_sf() +
+  scale_fill_gradientn(colours = c("white", "red", "black"), 
+                         values = rescale(c(0, 1, 3)),
+                         guide = "colorbar", limits=c(0, 1100000)) +
+  theme_void()
+```
+
+```{r}
+merged_data %>% 
+  filter(year == 2018) %>% 
+ggplot(aes(fill = co2_per_capita)) +
+    geom_sf() +
+  scale_fill_gradientn(colours = c("white", "red", "black"),
+                       values = rescale(c(0, 1, 3)),
+                       guide = "colorbar", limits=c(0, 20)) +
+  theme_void()
+```
+
+```{r}
+
+bins = c(0, 125000, 250000, 375000, 500000, 625000, 750000, 875000, 1000000, 100000000)
+
+pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
+
+#labels <- sprintf("<strong>%s</strong><br/>%g responsibility_value", merged_data$name, merged_data$responsibility_value) %>% lapply(htmltools::HTML)
+#head(labels, 1)
+
+merged_data %>% 
+  filter(year == 2018) %>%
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~pal(responsibility_value), # specify fill color for polygons
+    stroke = TRUE, # add border to polygons
+    weight = 0.5, # set border weight
+    opacity = 1, # set border opacity
+    color = "black", # set border color
+    fillOpacity = 0.7, # set fill opacity
+    label = paste("Country: ", merged_data$name, "<br>",
+                           "Responsibility value: ", merged_data$responsibility_value, "<br>") # add hover-over label for country name
+    )
+```
+```{r}
+bins = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 100)
+
+pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
+#pal <- colorNumeric("Reds", domain = merged_data$responsibility_value)
+
+merged_data %>% 
+  filter(year == 2021) %>%
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~pal(co2_per_capita), # specify fill color for polygons
+    stroke = TRUE, # add border to polygons
+    weight = 0.5, # set border weight
+    opacity = 1, # set border opacity
+    color = "black", # set border color
+    fillOpacity = 0.7, # set fill opacity
+    label = ~name # add hover-over label for country name
+  )
+```
+
+```{r}
+bins = c(0, 1, 4.5, 20.6, 93, 418.1, 1881.5, 8466.9, 38101)
+
+pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
+#pal <- colorNumeric("Reds", domain = merged_data$responsibility_value)
+
+merged_data %>% 
+  filter(year == 2021) %>%
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~pal(co2), # specify fill color for polygons
+    stroke = TRUE, # add border to polygons
+    weight = 0.5, # set border weight
+    opacity = 1, # set border opacity
+    color = "black", # set border color
+    fillOpacity = 0.7, # set fill opacity
+    label = ~name # add hover-over label for country name
+  )
+```
+```{r}
+my_map <- ggplot() +
+  geom_sf(data = merged_data, aes(fill = co2_per_capita, group = year)) +
+  scale_fill_gradientn(colours = c("white", "red", "black"), 
+                         values = rescale(c(0, 20, 80)),
+                         guide = "colorbar", limits=c(0, 25)) +
+  theme_void() +
+  transition_states(year, transition_length = 2, state_length = 1) +
+  ease_aes('linear') +
+  #enter_fade() +
+  #exit_fade() +
+  #labs(title = paste("Year ", merged_data$year)
+  labs(title = "Year: {closest_state}")
+```
+
+```{r}
+R_map2 <- ggplot() +
+  geom_sf(data = responsibility_data, aes(fill = responsibility_value, group = year)) +
+  scale_fill_gradientn(colours = c("white", "red", "black"), 
+                         values = rescale(c(0, 20, 80)),
+                         guide = "colorbar", limits=c(0, 1100000)) +
+  theme_void() +
+  transition_states(year) + #, transition_length = 2, state_length = 1) +
+  ease_aes('linear') +
+  labs(title = "Year: {closest_state}")
+```
+
+```{r}
+Our_co2_dataset %>%
+  filter(year > 2019) %>% 
+  select(co2_per_capita, year, country)
+  labs(title = "Year: {closest_state}")
+
+```
+
+```{r}
+my_map <- ggplot() +
+  geom_sf(data = sub_data, aes(fill = co2)) +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_void()
+```
