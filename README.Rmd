@@ -29,19 +29,6 @@ Our presentation can be found [here](presentation/presentation.html).
 
 ## Data 
 
-```{r}
-library(tidyverse)
-library(dplyr)
-```
-
-```{r}
-Our_co2_dataset <- owid_co2_data %>% 
-  select("country", "year", "population", "co2", "co2_per_capita")
-```
-
-```{r}
-view(Our_co2_dataset)
-```
 
 
 Include a citation for your data here. 

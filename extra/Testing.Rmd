@@ -1,5 +1,5 @@
 ```{r}
-install.packages("gganimate")
+#install.packages("ggplot2")
 library(gganimate)
 library(tidyverse)
 library(dplyr)
@@ -12,8 +12,10 @@ library("rnaturalearthdata")
 library("gganimate")
 library(gifski)
 library(png) 
-library(plotly)
-
+library(scales)
+library(leaflet)
+library(animation)
+library(av)
 ```
 
 ```{r}
@@ -27,7 +29,8 @@ CO2_data <- owid_co2_data
 
 ```{r}
 Our_co2_dataset <- owid_co2_data %>% 
-  select("country", "year", "population", "co2", "co2_per_capita", "iso_code")
+  select("country", "year", "population", "co2", "co2_per_capita", "iso_code", "gdp") %>% 
+  filter(country != "Antarctica")
 ```
 
 ```{r}
@@ -40,6 +43,7 @@ class(world)
 
 ```{r}
 names(world)[10] <- "iso_code"
+names(world)[19] <- "country"
 
 
 all_countries <- Our_co2_dataset %>%
@@ -47,54 +51,150 @@ all_countries <- Our_co2_dataset %>%
 
 
 CO2_complete <- left_join(all_countries, Our_co2_dataset, by = c("iso_code", "year"))
+
+```
+
+```{r}
+CO2_complete <- CO2_complete %>%
+  mutate(gdp_per_capita = gdp / population) %>% 
+  mutate(responsibility_value = gdp_per_capita * co2_per_capita)
 ```
 
 
 ```{r}
-merged_data <- full_join(world, Our_co2_dataset, by = c("iso_code"))
+merged_data <- full_join(world, CO2_complete, by = c("iso_code"))
 ```
 
 ```{r}
 sub_data <- merged_data %>% 
-  filter(year > 2015)
+  filter(year > 2019)
 ```
 
+```{r}
+responsibility_data <- merged_data %>% 
+  filter(year > 1849) %>% 
+  filter(year < 2019)
+```
 
 
 ```{r}
 merged_data %>% 
-  filter(year == 2020) %>% 
+  filter(year == 2018) %>% 
+ggplot(aes(fill = responsibility_value)) +
+    geom_sf() +
+  scale_fill_gradientn(colours = c("white", "red", "black"), 
+                         values = rescale(c(0, 1, 3)),
+                         guide = "colorbar", limits=c(0, 1100000)) +
+  theme_void()
+```
+
+```{r}
+merged_data %>% 
+  filter(year == 2018) %>% 
 ggplot(aes(fill = co2_per_capita)) +
     geom_sf() +
-  scale_fill_gradient(low = "blue", high ="red") +
-  theme_void() 
-  #transition_states(year) +
-  #ease_aes('linear')
+  scale_fill_gradientn(colours = c("white", "red", "black"),
+                       values = rescale(c(0, 1, 3)),
+                       guide = "colorbar", limits=c(0, 20)) +
+  theme_void()
 ```
 
 ```{r}
 
-mini <- merged_data %>%
-  filter(year %in% c(2020, 2019, 2018, 2017, 2016))
+bins = c(0, 125000, 250000, 375000, 500000, 625000, 750000, 875000, 1000000, 100000000)
 
-anim <- ggplot() +
-  geom_sf(data = mini, aes(fill = co2_per_capita, group = year)) +
-  scale_fill_gradient(low = "blue", high = "red") +
+pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
+
+#labels <- sprintf("<strong>%s</strong><br/>%g responsibility_value", merged_data$name, merged_data$responsibility_value) %>% lapply(htmltools::HTML)
+#head(labels, 1)
+
+merged_data %>% 
+  filter(year == 2018) %>%
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~pal(responsibility_value), # specify fill color for polygons
+    stroke = TRUE, # add border to polygons
+    weight = 0.5, # set border weight
+    opacity = 1, # set border opacity
+    color = "black", # set border color
+    fillOpacity = 0.7, # set fill opacity
+    label = paste("Country: ", merged_data$name, "<br>",
+                           "Responsibility value: ", merged_data$responsibility_value, "<br>") # add hover-over label for country name
+    )
+```
+```{r}
+bins = c(0, 2, 4, 6, 8, 10, 12, 14, 16, 100)
+
+pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
+#pal <- colorNumeric("Reds", domain = merged_data$responsibility_value)
+
+merged_data %>% 
+  filter(year == 2021) %>%
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~pal(co2_per_capita), # specify fill color for polygons
+    stroke = TRUE, # add border to polygons
+    weight = 0.5, # set border weight
+    opacity = 1, # set border opacity
+    color = "black", # set border color
+    fillOpacity = 0.7, # set fill opacity
+    label = ~name # add hover-over label for country name
+  )
+```
+
+```{r}
+bins = c(0, 1, 4.5, 20.6, 93, 418.1, 1881.5, 8466.9, 38101)
+
+pal <- colorBin("Reds", domain = merged_data$responsibility_value, bins = bins)
+#pal <- colorNumeric("Reds", domain = merged_data$responsibility_value)
+
+merged_data %>% 
+  filter(year == 2021) %>%
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(
+    fillColor = ~pal(co2), # specify fill color for polygons
+    stroke = TRUE, # add border to polygons
+    weight = 0.5, # set border weight
+    opacity = 1, # set border opacity
+    color = "black", # set border color
+    fillOpacity = 0.7, # set fill opacity
+    label = ~name # add hover-over label for country name
+  )
+```
+```{r}
+my_map <- ggplot() +
+  geom_sf(data = merged_data, aes(fill = co2_per_capita, group = year)) +
+  scale_fill_gradientn(colours = c("white", "red", "black"), 
+                         values = rescale(c(0, 20, 80)),
+                         guide = "colorbar", limits=c(0, 25)) +
   theme_void() +
-  transition_states(year) +
+  transition_states(year, transition_length = 2, state_length = 1) +
+  ease_aes('linear') +
+  #enter_fade() +
+  #exit_fade() +
+  #labs(title = paste("Year ", merged_data$year)
   labs(title = "Year: {closest_state}")
 ```
 
 ```{r}
-animate(anim, renderer = gifski_renderer())
-anim_save("anim.gif", anim, path = NULL)
-
-my_map <- ggplot() +
-  geom_sf(data = sub_data, aes(fill = co2_per_capita, group = year)) +
-  scale_fill_gradient(low = "blue", high = "red") +
+R_map2 <- ggplot() +
+  geom_sf(data = responsibility_data, aes(fill = responsibility_value, group = year)) +
+  scale_fill_gradientn(colours = c("white", "red", "black"), 
+                         values = rescale(c(0, 20, 80)),
+                         guide = "colorbar", limits=c(0, 1100000)) +
   theme_void() +
-  transition_time(year) +
+  transition_states(year) + #, transition_length = 2, state_length = 1) +
   ease_aes('linear') +
+  labs(title = "Year: {closest_state}")
+```
+
+```{r}
+Our_co2_dataset %>%
+  filter(year > 2019) %>% 
+  select(co2_per_capita, year, country)
   labs(title = "Year: {closest_state}")
 
 ```
@@ -105,30 +205,3 @@ my_map <- ggplot() +
   scale_fill_gradient(low = "blue", high = "red") +
   theme_void()
 ```
-
-```{r}
-my_anim_map <- my_map +
-  transition_states(year) +
-  labs(title = "Year: {closest_state}")
-```
-
-```{r}
-animate(my_map, renderer = gifski_renderer())
-
-anim_save(filename = "my_map.gif", animation = my_map, path = NULL)
-```
-
-```{r}
-
-#anim_save("my_animation.gif", my_anim_map)
-```
-
-
-```{r}
-minismall <- CO2_complete %>%
-  filter(year %in% c(2020, 2019, 2018, 2017, 2016)) %>% 
-  write.csv("tiny.csv")
-```
-
-
-
